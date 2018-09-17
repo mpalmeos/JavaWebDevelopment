@@ -6,8 +6,9 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import model.Order;
 
-@WebServlet("/hello")
+@WebServlet("/api/orders")
 public class HelloServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
@@ -18,4 +19,15 @@ public class HelloServlet extends HttpServlet {
         response.getWriter().print("Hello!");
     }
 
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+
+        String input = Util.asString(req.getInputStream());
+
+        System.out.println(input);
+
+        resp.setContentType("application/json");
+        //resp.getWriter().print(output);
+    }
 }
