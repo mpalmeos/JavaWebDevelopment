@@ -18,20 +18,18 @@ public class Util {
    }
 
    public static String getOrder (String s){
-      /*Order newOne = new Order();
-      Long number = 1L;*/
-
+      String answer = null;
       String buffer = s.trim().replaceAll(Pattern.quote("{"), " ").
               replaceAll(Pattern.quote("}"), " ").trim().
               replaceAll(Pattern.quote("\""), " ").trim().
               replaceAll(Pattern.quote(" "), "");
       String[] result = buffer.split(":");
 
-      String answer = result[1];
-      /*newOne.setOrderNumber(result[1]);
-      newOne.setId(number);
-      number++;*/
-
+      for (int i = 0; i < result.length; i++) {
+         if (result[i].contains("orderNumber")){
+            answer = result[i+1];
+         }
+      }
       return answer;
    }
 }
