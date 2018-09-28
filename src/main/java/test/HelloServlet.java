@@ -1,5 +1,6 @@
 package test;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -11,7 +12,6 @@ import model.Order;
 @WebServlet("/api/orders")
 public class HelloServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    private long num = 1L;
 
     protected void doGet(HttpServletRequest request,
                          HttpServletResponse response)
@@ -25,16 +25,12 @@ public class HelloServlet extends HttpServlet {
             throws ServletException, IOException {
 
         String input = Util.asString(req.getInputStream());
-        //System.out.println(input);
-        Order test = new Order();
-        test.setOrderNumber(Util.getOrder(input));
-        test.setId(num);
-        num++;
-        System.out.println(test);
+        Order test = new ObjectMapper().readValue(input, Order.class);
 
         resp.setContentType("application/json");
-        String output = "{ \"id\": " + test.getId() +", \"orderNumber\": \"" + test.getOrderNumber() +"\" }";
+        String output = new ObjectMapper().writeValueAsString(test);
 
         resp.getWriter().print(output);
+        System.out.println(output);
     }
 }
