@@ -17,7 +17,12 @@ public class HelloServlet extends HttpServlet {
                          HttpServletResponse response)
             throws ServletException, IOException {
 
-        response.getWriter().print("Hello!");
+        String input = request.getParameter("id");
+        Long valueLong = Long.valueOf(input);
+        String output = new ObjectMapper().writeValueAsString(DataSafe.get(valueLong));
+
+        response.setContentType("application/json");
+        response.getWriter().print(output);
     }
 
     @Override
@@ -26,6 +31,7 @@ public class HelloServlet extends HttpServlet {
 
         String input = Util.asString(req.getInputStream());
         Order test = new ObjectMapper().readValue(input, Order.class);
+        DataSafe.store(test.getId(), test);
 
         resp.setContentType("application/json");
         String output = new ObjectMapper().writeValueAsString(test);
