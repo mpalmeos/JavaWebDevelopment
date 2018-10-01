@@ -17,6 +17,7 @@ public class HelloServlet extends HttpServlet {
                          HttpServletResponse response)
             throws ServletException, IOException {
 
+        //https://examples.javacodegeeks.com/enterprise-java/servlet/get-request-parameter-in-servlet/
         String input = request.getParameter("id");
         Long valueLong = Long.valueOf(input);
         String output = new ObjectMapper().writeValueAsString(DataSafe.get(valueLong));
@@ -37,6 +38,6 @@ public class HelloServlet extends HttpServlet {
         String output = new ObjectMapper().writeValueAsString(test);
 
         resp.getWriter().print(output);
-        System.out.println(output);
+        //System.out.println("POST: " + test);
     }
 }
