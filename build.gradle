@@ -11,9 +11,26 @@ repositories {
 sourceCompatibility = 8
 
 dependencies {
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.9.6'
-    compileOnly 'org.projectlombok:lombok:1.18.2'
-    annotationProcessor 'org.projectlombok:lombok:1.18.2'
+    compile group: 'com.fasterxml.jackson.core',
+            name: 'jackson-databind',
+            version: '2.9.6'
+    
+    compile group: 'org.hsqldb',
+            name: 'hsqldb',
+            version: '2.4.1'
+
+    compile group: 'commons-dbcp',
+            name: 'commons-dbcp',
+            version: '1.4'
+
+    compileOnly group: 'org.projectlombok',
+            name: 'lombok',
+            version: '1.18.2'
+
+    annotationProcessor group: 'org.projectlombok',
+            name: 'lombok',
+            version: '1.18.2'
+    
     compileOnly 'javax.servlet:javax.servlet-api:4.0.1'
 }
 
