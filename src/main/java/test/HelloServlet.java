@@ -26,15 +26,13 @@ public class HelloServlet extends HttpServlet {
 
         if (input == null){
             List<Order> allOrders = new OrderDao().getOrderList();
+            String output = new ObjectMapper().writeValueAsString(allOrders);
+            response.setContentType("application/json");
+            response.getWriter().print(output);
 
-            for (Order o : allOrders) {
-                String output = new ObjectMapper().writeValueAsString(o);
-                response.setContentType("application/json");
-                response.getWriter().print(output);
-            }
+
         } else {
-            Long valueLong = Long.valueOf(input);
-            Order orderByID = new OrderDao().getOrderByID(valueLong);
+            Order orderByID = new OrderDao().getOrderByID(Long.valueOf(input));
             String output = new ObjectMapper().writeValueAsString(orderByID);
             response.setContentType("application/json");
             response.getWriter().print(output);
@@ -52,7 +50,7 @@ public class HelloServlet extends HttpServlet {
 
         resp.setContentType("application/json");
         String output = new ObjectMapper().writeValueAsString(processedOrder);
-        System.out.println(output);
+        //System.out.println(output);
         resp.getWriter().print(output);
         //System.out.println("POST: " + test);
     }
