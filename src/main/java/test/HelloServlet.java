@@ -2,11 +2,14 @@ package test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import dao.OrderDao;
 import model.Order;
 import util.Util;
 
@@ -20,11 +23,22 @@ public class HelloServlet extends HttpServlet {
 
         //https://examples.javacodegeeks.com/enterprise-java/servlet/get-request-parameter-in-servlet/
         String input = request.getParameter("id");
-        Long valueLong = Long.valueOf(input);
-        String output = new ObjectMapper().writeValueAsString(DataSafe.get(valueLong));
 
-        response.setContentType("application/json");
-        response.getWriter().print(output);
+        if (input == null){
+            List<Order> allOrders = new OrderDao().getOrderList();
+
+            for (Order o : allOrders) {
+                String output = new ObjectMapper().writeValueAsString(o);
+                response.setContentType("application/json");
+                response.getWriter().print(output);
+            }
+        } else {
+            Long valueLong = Long.valueOf(input);
+            Order orderByID = new OrderDao().getOrderByID(valueLong);
+            String output = new ObjectMapper().writeValueAsString(orderByID);
+            response.setContentType("application/json");
+            response.getWriter().print(output);
+        }
     }
 
     @Override
@@ -32,12 +46,13 @@ public class HelloServlet extends HttpServlet {
             throws ServletException, IOException {
 
         String input = Util.asString(req.getInputStream());
-        Order test = new ObjectMapper().readValue(input, Order.class);
-        DataSafe.store(test.getId(), test);
+        Order insertOrder = new ObjectMapper().readValue(input, Order.class);
+        Order processedOrder = new OrderDao().insertOrder(insertOrder);
+        //DataSafe.store(test.getId(), test);
 
         resp.setContentType("application/json");
-        String output = new ObjectMapper().writeValueAsString(test);
-
+        String output = new ObjectMapper().writeValueAsString(processedOrder);
+        System.out.println(output);
         resp.getWriter().print(output);
         //System.out.println("POST: " + test);
     }

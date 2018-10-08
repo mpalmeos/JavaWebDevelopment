@@ -1,27 +1,53 @@
 package model;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-
 import java.util.List;
 
-@ToString
-@Setter
 public class Order {
    private Long id;
-
-   @Getter
-   private static Long id_counter = 1L;
-
-   @Getter
    private String orderNumber;
 
-   @Getter
+   public void setOrderRows(List<Rows> orderRows) {
+      this.orderRows = orderRows;
+   }
+
+   public List<Rows> getOrderRows() {
+      return orderRows;
+   }
+
    private List<Rows> orderRows;
 
+   public Order(){}
+
+   public Order(Long id, String number){
+      this.id = id;
+      this.orderNumber = number;
+   }
+
+   public Order(String orderNumber){
+      this.orderNumber = orderNumber;
+   }
+
    public Long getId() {
-      if (this.id == null) this.setId(id_counter++);
       return id;
+   }
+
+   public String getOrderNumber() {
+      return orderNumber;
+   }
+
+   public void setId(Long id) {
+      this.id = id;
+   }
+
+   public void setOrderNumber(String orderNumber) {
+      this.orderNumber = orderNumber;
+   }
+
+   @Override
+   public String toString() {
+      return "Order{" +
+              "id=" + id +
+              ", orderNumber='" + orderNumber + '\'' +
+              '}';
    }
 }

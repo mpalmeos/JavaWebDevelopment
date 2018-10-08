@@ -1,5 +1,6 @@
 package test;
 
+import dao.OrderDao;
 import model.Order;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -13,13 +14,14 @@ public class FormServlet extends HttpServlet {
    protected void doPost(HttpServletRequest request, HttpServletResponse response)
            throws ServletException, IOException {
 
-      Order test = new Order();
-      test.setOrderNumber(request.getParameter("orderNumber"));
-      DataSafe.store(test.getId(), test);
+      /*String input = request.getParameter("orderNumber");
+
+      Order insertOrder = new Order(input);
+      Order processedOrder = new OrderDao().insertOrder(insertOrder);
 
       response.setContentType("application/json");
-      response.getWriter().print(test.getId());
-      //System.out.println("FORM: " + test);
+      response.getWriter().print(processedOrder);
+      //System.out.println("FORM: " + test);*/
    }
 
 }
