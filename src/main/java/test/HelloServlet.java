@@ -50,4 +50,13 @@ public class HelloServlet extends HttpServlet {
         String output = new ObjectMapper().writeValueAsString(processedOrder);
         resp.getWriter().print(output);
     }
+
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+
+        String input = req.getParameter("id");
+        OrderDao.deleteOrderByID(Long.valueOf(input));
+        System.out.println("Order nr " + input + " deleted!");
+    }
 }

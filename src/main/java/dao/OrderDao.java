@@ -74,4 +74,19 @@ public class OrderDao {
          throw new RuntimeException(e);
       }
    }
+
+   //http://www.sqlitetutorial.net/sqlite-java/delete/
+   public static void deleteOrderByID(Long id){
+      String sql = "delete from orders where id = ?";
+
+      try(Connection conn = DataSourceProvider.getDataSource().getConnection();
+          PreparedStatement ps = conn.prepareStatement(sql)){
+
+         ps.setLong(1, id);
+         ps.executeUpdate();
+
+      } catch (SQLException e) {
+         throw new RuntimeException(e);
+      }
+   }
 }
