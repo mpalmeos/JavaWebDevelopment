@@ -25,7 +25,6 @@ public class Listener implements ServletContextListener{
       } catch (SQLException e) {
          throw new RuntimeException(e);
       }
-
    }
 
    public void contextDestroyed(ServletContextEvent sce) {

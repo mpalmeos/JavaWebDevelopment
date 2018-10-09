@@ -23,20 +23,19 @@ public class HelloServlet extends HttpServlet {
 
         //https://examples.javacodegeeks.com/enterprise-java/servlet/get-request-parameter-in-servlet/
         String input = request.getParameter("id");
+        String output;
 
         if (input == null){
             List<Order> allOrders = new OrderDao().getOrderList();
-            String output = new ObjectMapper().writeValueAsString(allOrders);
-            response.setContentType("application/json");
+            output = new ObjectMapper().writeValueAsString(allOrders);
             response.getWriter().print(output);
-
-
         } else {
             Order orderByID = new OrderDao().getOrderByID(Long.valueOf(input));
-            String output = new ObjectMapper().writeValueAsString(orderByID);
-            response.setContentType("application/json");
-            response.getWriter().print(output);
+            output = new ObjectMapper().writeValueAsString(orderByID);
         }
+
+        response.setContentType("application/json");
+        response.getWriter().print(output);
     }
 
     @Override
@@ -46,12 +45,9 @@ public class HelloServlet extends HttpServlet {
         String input = Util.asString(req.getInputStream());
         Order insertOrder = new ObjectMapper().readValue(input, Order.class);
         Order processedOrder = new OrderDao().insertOrder(insertOrder);
-        //DataSafe.store(test.getId(), test);
 
         resp.setContentType("application/json");
         String output = new ObjectMapper().writeValueAsString(processedOrder);
-        //System.out.println(output);
         resp.getWriter().print(output);
-        //System.out.println("POST: " + test);
     }
 }

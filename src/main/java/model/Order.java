@@ -5,15 +5,6 @@ import java.util.List;
 public class Order {
    private Long id;
    private String orderNumber;
-
-   public void setOrderRows(List<Rows> orderRows) {
-      this.orderRows = orderRows;
-   }
-
-   public List<Rows> getOrderRows() {
-      return orderRows;
-   }
-
    private List<Rows> orderRows;
 
    public Order(){}
@@ -41,6 +32,14 @@ public class Order {
 
    public void setOrderNumber(String orderNumber) {
       this.orderNumber = orderNumber;
+   }
+
+   public void setOrderRows(List<Rows> orderRows) {
+      this.orderRows = orderRows;
+   }
+
+   public List<Rows> getOrderRows() {
+      return orderRows;
    }
 
    @Override

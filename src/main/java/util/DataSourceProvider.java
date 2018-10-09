@@ -1,12 +1,11 @@
 package util;
 
 import org.apache.commons.dbcp.BasicDataSource;
-
 import javax.sql.DataSource;
 
+//Code from https://bitbucket.org/mkalmo/exjdbc
 public class DataSourceProvider {
    private static String dbUrl = null;
-
    private static BasicDataSource dataSource = null;
 
    public static void setDbUrl(String url) {
@@ -22,12 +21,10 @@ public class DataSourceProvider {
          throw new IllegalStateException(
                  "Database url not configured. Use setDbUrl()");
       }
-
       dataSource = new BasicDataSource();
       dataSource.setDriverClassName("org.hsqldb.jdbcDriver");
       dataSource.setUrl(dbUrl);
       dataSource.setMaxActive(3);
-
       return dataSource;
    }
 }
