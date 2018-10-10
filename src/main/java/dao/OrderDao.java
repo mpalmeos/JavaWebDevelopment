@@ -58,17 +58,21 @@ public class OrderDao {
 
    public Order insertOrder(Order order){
       String sql = "insert into orders (id, orderNumber) values (next value for seq1, ?)";
+      Long order_id;
 
-      try(Connection conn = DataSourceProvider.getDataSource().getConnection();
-          PreparedStatement ps = conn.prepareStatement(sql, new String[] {"id"})){
+      try(Connection conn = DataSourceProvider.getDataSource().getConnection()){
 
-         ps.setString(1, order.getOrderNumber());
-         ps.executeUpdate();
+         try(PreparedStatement ps = conn.prepareStatement(sql, new String[] {"id"})){
+            ps.setString(1, order.getOrderNumber());
+            ps.executeUpdate();
 
-         ResultSet rs = ps.getGeneratedKeys();
-         rs.next();
+            ResultSet rs = ps.getGeneratedKeys();
+            rs.next();
+            order_id = rs.getLong("id");
 
-         return new Order(rs.getLong("id"), order.getOrderNumber());
+         }
+
+         return new Order(order_id, order.getOrderNumber(), order.getOrderRows());
 
       } catch (SQLException e) {
          throw new RuntimeException(e);
