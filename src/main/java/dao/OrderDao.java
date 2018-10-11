@@ -1,10 +1,12 @@
 package dao;
 
 import model.Order;
+import model.Rows;
 import util.DataSourceProvider;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class OrderDao {
@@ -58,6 +60,8 @@ public class OrderDao {
 
    public Order insertOrder(Order order){
       String sql = "insert into orders (id, orderNumber) values (next value for seq1, ?)";
+      String sql_r = "insert into order_rows (row_id, itemName, quantity, price) " +
+              "values (?, ?, ?, ?)";
       Long order_id;
 
       try(Connection conn = DataSourceProvider.getDataSource().getConnection()){
@@ -69,7 +73,18 @@ public class OrderDao {
             ResultSet rs = ps.getGeneratedKeys();
             rs.next();
             order_id = rs.getLong("id");
+         }
 
+         if (order.getOrderRows() != null) {
+            try(PreparedStatement ps = conn.prepareStatement(sql_r)){
+               for (Rows r : order.getOrderRows()) {
+                  ps.setLong(1, order_id);
+                  ps.setString(2, r.getItemName());
+                  ps.setInt(3, r.getQuantity());
+                  ps.setInt(4, r.getPrice());
+                  ps.execute();
+               }
+            }
          }
 
          return new Order(order_id, order.getOrderNumber(), order.getOrderRows());

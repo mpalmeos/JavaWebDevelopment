@@ -8,7 +8,7 @@ CREATE TABLE ORDERS (
 );
 
 CREATE TABLE ORDER_ROWS (
-    rwo_id BIGINT NOT NULL PRIMARY KEY,
+    row_id BIGINT NOT NULL,
     itemName VARCHAR(255),
     quantity INTEGER,
     price INTEGER
