@@ -6,7 +6,9 @@ import util.DataSourceProvider;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class OrderDao {
 
@@ -14,18 +16,32 @@ public class OrderDao {
 
    public List<Order> getOrderList(){
       List<Order> orderList = new ArrayList<>();
+      Map<Long, Order> orders = new HashMap<>();
+      List<Rows> rowList = new ArrayList<>();
 
       try(Connection conn = DataSourceProvider.getDataSource().getConnection();
-         ){
+          Statement stmt = conn.createStatement()){
 
-         try(Statement stmt = conn.createStatement()) {
-            ResultSet rs = stmt.executeQuery("select * from orders o left join order_rows r on o.id = r.orders_id");
+          ResultSet rs = stmt.executeQuery("select o.id, o.orderNumber, r.itemName, r.quantity, r.price from orders o left join order_rows r on o.id = r.orders_id");
 
-            while (rs.next()) {
+          while (rs.next()) {
+              //kasutada hashmapi vms, et sama orders_id-ga row kirjed saaks samasse listi vms.
+              //https://codereview.stackexchange.com/questions/42185/how-to-fill-an-arraylist-of-arraylists-with-a-left-join
+              Long o_id = rs.getLong("o.id");
+              Order o = orders.get(o_id);
+              if (o == null){
+                  o = new Order(o_id, rs.getString("orderNumber"));
+                  orders.put(o_id, o);
+              }
 
+              Rows r = new Rows();
+              r.setQuantity(rs.getInt("r.quantity"));
+              r.setPrice(rs.getInt("r.price"));
+              r.setItemName(rs.getString("r.itemName"));
+              rowList.add(r);
 
-            }
-         }
+          }
+
       } catch (SQLException e) {
          e.printStackTrace();
       }
