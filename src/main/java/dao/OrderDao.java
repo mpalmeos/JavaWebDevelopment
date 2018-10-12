@@ -6,7 +6,6 @@ import util.DataSourceProvider;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class OrderDao {
@@ -16,52 +15,68 @@ public class OrderDao {
    public List<Order> getOrderList(){
       List<Order> orderList = new ArrayList<>();
 
-      try (Connection conn = DataSourceProvider.getDataSource().getConnection();
-           Statement stmt = conn.createStatement()) {
+      try(Connection conn = DataSourceProvider.getDataSource().getConnection();
+         ){
 
-         ResultSet rs = stmt.executeQuery("select * from orders");
+         try(Statement stmt = conn.createStatement()) {
+            ResultSet rs = stmt.executeQuery("select * from orders o left join order_rows r on o.id = r.orders_id");
 
-         while (rs.next()){
-            Order o = new Order(
-                    rs.getLong("id"),
-                    rs.getString("orderNumber")
-            );
+            while (rs.next()) {
 
-            orderList.add(o);
+
+            }
          }
       } catch (SQLException e) {
-         throw new RuntimeException(e);
+         e.printStackTrace();
       }
+
       return orderList;
    }
 
    public Order getOrderByID(Long id){
 
-      String sqlbyID = "select id, orderNumber from orders where id = ?";
+      String sql_o = "select id, orderNumber from orders where id = ?";
+      String sql_r = "select itemName, quantity, price from order_rows where orders_id = ?";
+      Order newOrder = null;
+      List<Rows> orderRows = null;
 
-      try (Connection conn = DataSourceProvider.getDataSource().getConnection();
-           PreparedStatement ps = conn.prepareStatement(sqlbyID)) {
+      try (Connection conn = DataSourceProvider.getDataSource().getConnection()){
 
-         ps.setLong(1, id);
+         try(PreparedStatement ps = conn.prepareStatement(sql_o)){
+            ps.setLong(1, id);
+            ResultSet rs = ps.executeQuery();
 
-         ResultSet rs = ps.executeQuery();
+            if (rs.next()){
+               newOrder.setId(rs.getLong("id"));
+               newOrder.setOrderNumber(rs.getString("orderNumber"));
+            } else return null;
+         }
 
-         if (rs.next()){
-            return new Order(
-              rs.getLong("id"),
-              rs.getString("orderNumber")
-            );
-         } else return null;
+         try(PreparedStatement ps = conn.prepareStatement(sql_r)){
+            ps.setLong(1, id);
+            ResultSet rs = ps.executeQuery();
+            Rows fillRow = null;
+
+            while (rs.next()){
+               fillRow.setItemName(rs.getString("itemName"));
+               fillRow.setPrice(rs.getInt("price"));
+               fillRow.setQuantity(rs.getInt("quantity"));
+               orderRows.add(fillRow);
+            }
+            newOrder.setOrderRows(orderRows);
+         }
 
       } catch (SQLException e) {
-         throw new RuntimeException(e);
+         e.printStackTrace();
       }
+
+      return newOrder;
    }
 
    public Order insertOrder(Order order){
       String sql = "insert into orders (id, orderNumber) values (next value for seq1, ?)";
-      String sql_r = "insert into order_rows (row_id, itemName, quantity, price) " +
-              "values (?, ?, ?, ?)";
+      String sql_r = "insert into order_rows (id, itemName, quantity, price, orders_id) " +
+              "values (next value for seq2, ?, ?, ?, ?)";
       Long order_id;
 
       try(Connection conn = DataSourceProvider.getDataSource().getConnection()){
@@ -78,10 +93,10 @@ public class OrderDao {
          if (order.getOrderRows() != null) {
             try(PreparedStatement ps = conn.prepareStatement(sql_r)){
                for (Rows r : order.getOrderRows()) {
-                  ps.setLong(1, order_id);
-                  ps.setString(2, r.getItemName());
-                  ps.setInt(3, r.getQuantity());
-                  ps.setInt(4, r.getPrice());
+                  ps.setString(1, r.getItemName());
+                  ps.setInt(2, r.getQuantity());
+                  ps.setInt(3, r.getPrice());
+                  ps.setLong(4, order_id);
                   ps.execute();
                }
             }
@@ -97,7 +112,7 @@ public class OrderDao {
    //http://www.sqlitetutorial.net/sqlite-java/delete/
    public static void deleteOrderByID(Long id){
       String sql = "delete from orders where id = ?";
-      String sql_r = "delete from order_rows where row_id = ?";
+      String sql_r = "delete from order_rows where orders_id = ?";
 
       try(Connection conn = DataSourceProvider.getDataSource().getConnection()){
          
