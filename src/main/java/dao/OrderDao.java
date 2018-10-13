@@ -39,7 +39,8 @@ public class OrderDao {
               r.setPrice(rs.getInt("r.price"));
               r.setItemName(rs.getString("r.itemName"));
               rowList.add(r);
-
+              o.setOrderRows(rowList);
+              orderList.add(o);
           }
 
       } catch (SQLException e) {
