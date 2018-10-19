@@ -28,7 +28,6 @@ public class HelloServlet extends HttpServlet {
         if (input == null){
             List<Order> allOrders = new OrderDao().getOrderList();
             output = new ObjectMapper().writeValueAsString(allOrders);
-            response.getWriter().print(output);
         } else {
             Order orderByID = new OrderDao().getOrderByID(Long.valueOf(input));
             output = new ObjectMapper().writeValueAsString(orderByID);

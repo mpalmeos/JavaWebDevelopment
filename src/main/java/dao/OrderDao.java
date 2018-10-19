@@ -13,78 +13,83 @@ import java.util.Map;
 public class OrderDao {
 
    public static String URL = "jdbc:hsqldb:mem:my-database";
+   //public static String URL = "jdbc:hsqldb:file:${user.home}/data/jdbc/db;shutdown=true";
 
+   //https://codereview.stackexchange.com/questions/42185/how-to-fill-an-arraylist-of-arraylists-with-a-left-join
    public List<Order> getOrderList(){
       List<Order> orderList = new ArrayList<>();
       Map<Long, Order> orders = new HashMap<>();
-      List<Rows> rowList = new ArrayList<>();
+      Map<Long, List<Rows>> rows = new HashMap<>();
 
       try(Connection conn = DataSourceProvider.getDataSource().getConnection();
           Statement stmt = conn.createStatement()){
 
-          ResultSet rs = stmt.executeQuery("select o.id, o.orderNumber, r.itemName, r.quantity, r.price from orders o left join order_rows r on o.id = r.orders_id");
+          ResultSet rs = stmt.executeQuery("select o.id, o.orderNumber, r.itemName, r.quantity, r.price from orders o " +
+                  "left join order_rows r on o.id = r.orders_id");
 
           while (rs.next()) {
-              //kasutada hashmapi vms, et sama orders_id-ga row kirjed saaks samasse listi vms.
-              //https://codereview.stackexchange.com/questions/42185/how-to-fill-an-arraylist-of-arraylists-with-a-left-join
-              Long o_id = rs.getLong("o.id");
+              Long o_id = rs.getLong("id");
               Order o = orders.get(o_id);
               if (o == null){
                   o = new Order(o_id, rs.getString("orderNumber"));
                   orders.put(o_id, o);
+                  rows.put(o_id, new ArrayList<Rows>());
               }
 
-              Rows r = new Rows();
-              r.setQuantity(rs.getInt("r.quantity"));
-              r.setPrice(rs.getInt("r.price"));
-              r.setItemName(rs.getString("r.itemName"));
-              rowList.add(r);
-              o.setOrderRows(rowList);
-              orderList.add(o);
+              if (rs.getString("itemName") != null){
+                 List<Rows> rowList = rows.get(o_id);
+                 Rows r = new Rows();
+                 r.setQuantity(rs.getInt("quantity"));
+                 r.setPrice(rs.getInt("price"));
+                 r.setItemName(rs.getString("itemName"));
+                 rowList.add(r);
+              }
+          }
+
+          for (Order o : orders.values()){
+             o.setOrderRows(rows.get(o.getId()));
+             orderList.add(o);
           }
 
       } catch (SQLException e) {
-         e.printStackTrace();
+         throw new RuntimeException(e);
       }
 
       return orderList;
    }
 
-   public Order getOrderByID(Long id){
+   public Order getOrderByID(Long id_value){
 
-      String sql_o = "select id, orderNumber from orders where id = ?";
-      String sql_r = "select itemName, quantity, price from order_rows where orders_id = ?";
-      Order newOrder = null;
-      List<Rows> orderRows = null;
+      String sql_o = "select o.id, o.orderNumber, r.itemName, r.quantity, r.price from orders o " +
+              "left join order_rows r on o.id = r.orders_id where o.id = ?";
+      Order newOrder = new Order();
+      List<Rows> rowList = new ArrayList<>();
 
       try (Connection conn = DataSourceProvider.getDataSource().getConnection()){
 
          try(PreparedStatement ps = conn.prepareStatement(sql_o)){
-            ps.setLong(1, id);
-            ResultSet rs = ps.executeQuery();
+            ps.setLong(1, id_value);
 
-            if (rs.next()){
-               newOrder.setId(rs.getLong("id"));
-               newOrder.setOrderNumber(rs.getString("orderNumber"));
-            } else return null;
-         }
-
-         try(PreparedStatement ps = conn.prepareStatement(sql_r)){
-            ps.setLong(1, id);
             ResultSet rs = ps.executeQuery();
-            Rows fillRow = null;
 
             while (rs.next()){
-               fillRow.setItemName(rs.getString("itemName"));
-               fillRow.setPrice(rs.getInt("price"));
-               fillRow.setQuantity(rs.getInt("quantity"));
-               orderRows.add(fillRow);
+               newOrder.setId(rs.getLong("id"));
+               newOrder.setOrderNumber(rs.getString("orderNumber"));
+
+               if (rs.getString("itemName") != null){
+                  Rows r = new Rows();
+                  r.setQuantity(rs.getInt("quantity"));
+                  r.setPrice(rs.getInt("price"));
+                  r.setItemName(rs.getString("itemName"));
+                  rowList.add(r);
+               }
             }
-            newOrder.setOrderRows(orderRows);
+
+            newOrder.setOrderRows(rowList);
          }
 
       } catch (SQLException e) {
-         e.printStackTrace();
+         throw new RuntimeException(e);
       }
 
       return newOrder;
@@ -92,7 +97,7 @@ public class OrderDao {
 
    public Order insertOrder(Order order){
       String sql = "insert into orders (id, orderNumber) values (next value for seq1, ?)";
-      String sql_r = "insert into order_rows (id, itemName, quantity, price, orders_id) " +
+      String sql_r = "insert into order_rows (row_id, itemName, quantity, price, orders_id) " +
               "values (next value for seq2, ?, ?, ?, ?)";
       Long order_id;
 
@@ -114,7 +119,7 @@ public class OrderDao {
                   ps.setInt(2, r.getQuantity());
                   ps.setInt(3, r.getPrice());
                   ps.setLong(4, order_id);
-                  ps.execute();
+                  ps.executeUpdate();
                }
             }
          }
@@ -135,7 +140,7 @@ public class OrderDao {
          
          try(PreparedStatement ps = conn.prepareStatement(sql)){
             ps.setLong(1, id);
-            ps.executeUpdate();   
+            ps.executeUpdate();
          }
 
          try(PreparedStatement ps = conn.prepareStatement(sql_r)){
