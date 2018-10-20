@@ -12,8 +12,9 @@ import java.util.Map;
 
 public class OrderDao {
 
-   public static String URL = "jdbc:hsqldb:mem:my-database";
-   //public static String URL = "jdbc:hsqldb:file:${user.home}/data/jdbc/db;shutdown=true";
+   public OrderDao() {
+      DataSourceProvider.setDbUrl(SetupDao.URL);
+   }
 
    //https://codereview.stackexchange.com/questions/42185/how-to-fill-an-arraylist-of-arraylists-with-a-left-join
    public List<Order> getOrderList(){
@@ -31,17 +32,22 @@ public class OrderDao {
               Long o_id = rs.getLong("id");
               Order o = orders.get(o_id);
               if (o == null){
-                  o = new Order(o_id, rs.getString("orderNumber"));
+                  o = new Order(
+                          o_id,
+                          rs.getString("orderNumber"),
+                          null
+                  );
                   orders.put(o_id, o);
                   rows.put(o_id, new ArrayList<Rows>());
               }
 
               if (rs.getString("itemName") != null){
                  List<Rows> rowList = rows.get(o_id);
-                 Rows r = new Rows();
-                 r.setQuantity(rs.getInt("quantity"));
-                 r.setPrice(rs.getInt("price"));
-                 r.setItemName(rs.getString("itemName"));
+                 Rows r = new Rows(
+                         rs.getString("itemName"),
+                         rs.getInt("quantity"),
+                         rs.getInt("price")
+                 );
                  rowList.add(r);
               }
           }
@@ -65,28 +71,28 @@ public class OrderDao {
       Order newOrder = new Order();
       List<Rows> rowList = new ArrayList<>();
 
-      try (Connection conn = DataSourceProvider.getDataSource().getConnection()){
+      try (Connection conn = DataSourceProvider.getDataSource().getConnection();
+           PreparedStatement ps = conn.prepareStatement(sql_o)){
 
-         try(PreparedStatement ps = conn.prepareStatement(sql_o)){
-            ps.setLong(1, id_value);
+         ps.setLong(1, id_value);
 
-            ResultSet rs = ps.executeQuery();
+         ResultSet rs = ps.executeQuery();
 
-            while (rs.next()){
-               newOrder.setId(rs.getLong("id"));
-               newOrder.setOrderNumber(rs.getString("orderNumber"));
+         while (rs.next()) {
+            newOrder.setId(rs.getLong("id"));
+            newOrder.setOrderNumber(rs.getString("orderNumber"));
 
-               if (rs.getString("itemName") != null){
-                  Rows r = new Rows();
-                  r.setQuantity(rs.getInt("quantity"));
-                  r.setPrice(rs.getInt("price"));
-                  r.setItemName(rs.getString("itemName"));
-                  rowList.add(r);
-               }
+            if (rs.getString("itemName") != null) {
+               Rows r = new Rows(
+                       rs.getString("itemName"),
+                       rs.getInt("quantity"),
+                       rs.getInt("price")
+               );
+               rowList.add(r);
             }
-
-            newOrder.setOrderRows(rowList);
          }
+
+         newOrder.setOrderRows(rowList);
 
       } catch (SQLException e) {
          throw new RuntimeException(e);

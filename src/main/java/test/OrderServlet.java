@@ -14,7 +14,7 @@ import model.Order;
 import util.Util;
 
 @WebServlet("/api/orders")
-public class HelloServlet extends HttpServlet {
+public class OrderServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     protected void doGet(HttpServletRequest request,
@@ -22,14 +22,14 @@ public class HelloServlet extends HttpServlet {
             throws ServletException, IOException {
 
         //https://examples.javacodegeeks.com/enterprise-java/servlet/get-request-parameter-in-servlet/
-        String input = request.getParameter("id");
+        Long inputID = Util.getLong(request.getParameter("id"));
         String output;
 
-        if (input == null){
+        if (inputID == null){
             List<Order> allOrders = new OrderDao().getOrderList();
             output = new ObjectMapper().writeValueAsString(allOrders);
         } else {
-            Order orderByID = new OrderDao().getOrderByID(Long.valueOf(input));
+            Order orderByID = new OrderDao().getOrderByID(inputID);
             output = new ObjectMapper().writeValueAsString(orderByID);
         }
 
@@ -42,8 +42,8 @@ public class HelloServlet extends HttpServlet {
             throws ServletException, IOException {
 
         String input = Util.asString(req.getInputStream());
-        Order insertOrder = new ObjectMapper().readValue(input, Order.class);
-        Order processedOrder = new OrderDao().insertOrder(insertOrder);
+        Order inputOrder = new ObjectMapper().readValue(input, Order.class);
+        Order processedOrder = new OrderDao().insertOrder(inputOrder);
 
         resp.setContentType("application/json");
         String output = new ObjectMapper().writeValueAsString(processedOrder);
@@ -54,8 +54,7 @@ public class HelloServlet extends HttpServlet {
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        String input = req.getParameter("id");
-        OrderDao.deleteOrderByID(Long.valueOf(input));
-        System.out.println("Order nr " + input + " deleted!");
+        Long inputID = Util.getLong(req.getParameter("id"));
+        OrderDao.deleteOrderByID(inputID);
     }
 }

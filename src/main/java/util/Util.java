@@ -14,4 +14,12 @@ public class Util {
          return buffer.lines().collect(Collectors.joining("\n"));
       }
    }
+
+   public static Long getLong(String input){
+      try{
+         return Long.parseLong(input);
+      } catch (NumberFormatException e){
+         return null;
+      }
+   }
 }
