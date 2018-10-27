@@ -158,4 +158,17 @@ public class OrderDao {
          throw new RuntimeException(e);
       }
    }
+
+   public static void deleteAll(){
+      String sql = "truncate schema public and commit";
+
+      try(Connection conn = DataSourceProvider.getDataSource().getConnection();
+          PreparedStatement ps = conn.prepareStatement(sql)) {
+
+         ps.executeUpdate();
+
+      } catch (SQLException e) {
+         throw new RuntimeException(e);
+      }
+   }
 }

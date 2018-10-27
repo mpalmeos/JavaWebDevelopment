@@ -55,6 +55,12 @@ public class OrderServlet extends HttpServlet {
             throws ServletException, IOException {
 
         Long inputID = Util.getLong(req.getParameter("id"));
-        OrderDao.deleteOrderByID(inputID);
+
+        if(inputID != null){
+            OrderDao.deleteOrderByID(inputID);
+        } else {
+            OrderDao.deleteAll();
+        }
+
     }
 }
