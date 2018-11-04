@@ -20,6 +20,7 @@ public class DBConfig {
    @Autowired
    public Environment env;
 
+   @Bean
    public DataSource dataSource(){
       DriverManagerDataSource ds = new DriverManagerDataSource();
       ds.setDriverClassName("org.hsqldb.jdbcDriver");
@@ -27,8 +28,6 @@ public class DBConfig {
 
       new JdbcTemplate(ds)
               .update(FileUtil.readFileFromClasspath("schema.sql"));
-      new JdbcTemplate(ds)
-              .update(FileUtil.readFileFromClasspath("data.sql"));
       return ds;
    }
 

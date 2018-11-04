@@ -2,6 +2,10 @@ package dao;
 
 import model.Order;
 import model.Rows;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
 import util.DataSourceProvider;
 
 import java.sql.*;
@@ -10,11 +14,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Repository
+@Primary
 public class OrderDao {
 
-   public OrderDao() {
-      DataSourceProvider.setDbUrl(SetupDao.URL);
-   }
+   @Autowired
+   private JdbcTemplate template;
 
    //https://codereview.stackexchange.com/questions/42185/how-to-fill-an-arraylist-of-arraylists-with-a-left-join
    public List<Order> getOrderList(){
