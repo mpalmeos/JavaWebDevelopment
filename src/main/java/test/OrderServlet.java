@@ -11,7 +11,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import dao.OrderDao;
 import model.Order;
-import model.ValidationErrors;
+import validation.ValidationAdvice;
+import validation.ValidationErrors;
 import util.Util;
 
 @WebServlet("/api/orders")
@@ -45,7 +46,7 @@ public class OrderServlet extends HttpServlet {
         String input = Util.asString(req.getInputStream());
         String output;
         Order inputOrder = new ObjectMapper().readValue(input, Order.class);
-        ValidationErrors errors = Util.orderValidation(inputOrder);
+        ValidationErrors errors = ValidationAdvice.orderValidation(inputOrder);
 
         if(errors != null){
             output = new ObjectMapper().writeValueAsString(errors);
