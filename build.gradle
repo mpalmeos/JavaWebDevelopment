@@ -10,18 +10,32 @@ repositories {
 
 sourceCompatibility = 8
 
+def springVersion = '5.1.0.RELEASE'
+
 dependencies {
-    compile group: 'com.fasterxml.jackson.core',
-            name: 'jackson-databind',
-            version: '2.9.6'
-    
-    compile group: 'org.hsqldb',
-            name: 'hsqldb',
-            version: '2.4.1'
+    compile group: 'org.springframework',
+            name: 'spring-webmvc',
+            version: springVersion
+
+    compile group: 'org.springframework',
+            name: 'spring-jdbc',
+            version: springVersion
 
     compile group: 'commons-dbcp',
             name: 'commons-dbcp',
             version: '1.4'
+
+    compile group: 'org.hsqldb',
+            name: 'hsqldb',
+            version: '2.4.1'
+
+    compile group: 'org.hibernate',
+            name: 'hibernate-validator',
+            version: '6.0.2.Final'
+
+    compile group: 'com.fasterxml.jackson.core',
+            name: 'jackson-databind',
+            version: '2.9.6'
 
     compileOnly group: 'org.projectlombok',
             name: 'lombok',
@@ -30,10 +44,9 @@ dependencies {
     annotationProcessor group: 'org.projectlombok',
             name: 'lombok',
             version: '1.18.2'
-    
-    compileOnly 'javax.servlet:javax.servlet-api:4.0.1'
 }
 
 gretty {
     contextPath = '/'
+    servletContainer = 'jetty9.4'
 }
