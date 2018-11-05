@@ -5,7 +5,6 @@ plugins {
 
 repositories {
     jcenter()
-    mavenCentral()
 }
 
 sourceCompatibility = 8
@@ -20,10 +19,6 @@ dependencies {
     compile group: 'org.springframework',
             name: 'spring-jdbc',
             version: springVersion
-
-    compile group: 'commons-dbcp',
-            name: 'commons-dbcp',
-            version: '1.4'
 
     compile group: 'org.hsqldb',
             name: 'hsqldb',
