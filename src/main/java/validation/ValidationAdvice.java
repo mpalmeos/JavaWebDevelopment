@@ -1,21 +1,29 @@
 package validation;
 
-import model.Order;
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-import java.util.ArrayList;
 import java.util.List;
 
+@ControllerAdvice
 public class ValidationAdvice {
-   public static ValidationErrors orderValidation(Order order){
-      String orderNr = order.getOrderNumber();
-      ValidationErrors allErrors = new ValidationErrors();
-      List<ValidationError> errorList = new ArrayList<>();
 
-      if (orderNr.length() < 2){
-         String length_error = "too_short_number";
-         errorList.add(new ValidationError(length_error));
-         allErrors.setErrors(errorList);
-         return allErrors;
-      } else return null;
+   @ResponseBody
+   @ExceptionHandler
+   @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+   public ValidationErrors handleErrors(MethodArgumentNotValidException exception){
+      ValidationErrors errorList = new ValidationErrors();
+      List<FieldError> errors = exception.getBindingResult().getFieldErrors();
+
+      for (FieldError error : errors) {
+         errorList.addError(error);
+      }
+
+      return errorList;
    }
 }
