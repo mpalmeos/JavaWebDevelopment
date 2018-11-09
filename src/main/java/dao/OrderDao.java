@@ -42,7 +42,7 @@ public class OrderDao {
       String sql = "select id, orderNumber from orders where id = ?";
 
       Order order = template.queryForObject(sql, new Object[] {id}, new BeanPropertyRowMapper<>(Order.class));
-      List<Rows> rows = getRows(id);
+      List<Rows> rows = getRows(order.getId());
       order.setOrderRows(rows);
       return order;
    }

@@ -2,8 +2,10 @@ package controller;
 
 import dao.OrderDao;
 import model.Order;
+import model.Report;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import util.ReportGenerator;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -37,5 +39,10 @@ public class OrderController {
    @DeleteMapping("orders/{orderID}")
    public void deleteOrder(@PathVariable("orderID") Long orderID){
       orderDao.deleteOrderByID(orderID);
+   }
+
+   @GetMapping("orders/report")
+   public Report getReport(){
+      return new ReportGenerator().generateReport(orderDao.getOrderList());
    }
 }
