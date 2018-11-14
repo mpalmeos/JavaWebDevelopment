@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.sql.*;
 import java.util.List;
@@ -25,13 +26,15 @@ public class OrderDao {
    private EntityManager entityManager;
 
    public List<Order> getOrderList(){
-      return entityManager.createQuery("select o from Order o",
-              Order.class).getResultList();
+      return entityManager.createQuery(
+              "select o from Order o",
+              Order.class)
+              .getResultList();
    }
 
    public Order getOrderByID(Long id){
       TypedQuery<Order> query = entityManager.createQuery(
-              "select o from Order o where o.id = :id",
+              "select distinct o from Order o where o.id = :id",
               Order.class);
       query.setParameter("id", id);
       return query.getSingleResult();
@@ -45,11 +48,17 @@ public class OrderDao {
       return order;
    }
 
+   @Transactional
    public void deleteOrderByID(Long id){
-
+      Order order = entityManager.find(Order.class, id);
+      if (order != null) entityManager.remove(order);
    }
 
+   @Transactional
    public void deleteAll(){
-
+      Query query = entityManager.createNativeQuery(
+              "truncate schema public and commit"
+      );
+      query.executeUpdate();
    }
 }
